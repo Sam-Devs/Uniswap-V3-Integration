@@ -6,7 +6,10 @@
   "author": "Sam Ayorinde <41350405+Sam-Devs@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
+    "@uniswap/sdk-core": "^3.0.0",
     "@uniswap/v3-sdk": "^3.2.1",
+    "dotenv": "^10.0.0",
+    "ethers": "^5.4.1",
     "i": "^0.3.6"
   }
 }
