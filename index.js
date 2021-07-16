@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
 const { Token } = require("@uniswap/sdk-core");
-const { Pool, TickList, TickListDataProvider, Tick } = require("@uniswap/v3-sdk");
+const { Pool, TickListDataProvider, Tick } = require("@uniswap/v3-sdk");
 const IUniswapV3PoolABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json");
 
 
@@ -28,26 +28,25 @@ const main = async () => {
         const tickSpacing = await poolContract.tickSpacing();
 
         const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
-
         const tickLowerIndex = nearestTick - (60 * 100);
         const tickUpperIndex = nearestTick + (60 * 100);
 
         const tickLowerData = await poolContract.ticks(tickLowerIndex);
-        const tickUpperData = await poolContract.ticks(tickUpper);
+        const tickUpperData = await poolContract.ticks(tickUpperIndex);
 
         const tickLower = new Tick({
-            index: tickLowerIndex,
+            index: tickLowerData,
             liquidityGross: tickLowerData.liquidityGross,
             liquidityNet: tickLowerData.liquidityNet
         })
-
         const tickUpper = new Tick({
-            index: tickUpperIndex,
+            index: tickUpperData,
             liquidityGross: tickUpperData.liquidityGross,
             liquidityNet: tickUpperData.liquidityNet
         })
-
         const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
+
+        
         const pool = new Pool(
             token0,
             token1,
