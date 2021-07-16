@@ -29,13 +29,22 @@ const main = async () => {
 
         const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
 
-        tickLowerIndex = nearestTick - (60 * 100);
-        tickUpperIndex = nearestTick + (60 * 100);
+        const tickLowerIndex = nearestTick - (60 * 100);
+        const tickUpperIndex = nearestTick + (60 * 100);
+
+        const tickLowerData = await poolContract.ticks(tickLowerIndex);
+        const tickUpperData = await poolContract.ticks(tickUpper);
 
         const tickLower = new Tick({
-            index: nearestTick,
-            liquidityGross:
-            liquidityNet:
+            index: tickLowerIndex,
+            liquidityGross: tickLowerData.liquidityGross,
+            liquidityNet: tickLowerData.liquidityNet
+        })
+
+        const tickUpper = new Tick({
+            index: tickUpperIndex,
+            liquidityGross: tickUpperData.liquidityGross,
+            liquidityNet: tickUpperData.liquidityNet
         })
 
         const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
