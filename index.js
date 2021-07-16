@@ -14,7 +14,7 @@ const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI.abi , pr
 const tokenAddresses = {
     token0: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     token1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-    poolAddress: "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
+    // poolAddress: "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8"
 }
 
 // create a Pool
@@ -54,10 +54,10 @@ const main = async () => {
             poolFee,
             slot0[0],
             poolLiquidity,
-            slot0[2],
+            slot0[1],
             tickList
         )
-        
+        console.log(pool);
     } catch (error) {
         console.log(error);
     }
