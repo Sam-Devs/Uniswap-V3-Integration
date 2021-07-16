@@ -1,0 +1,12 @@
+{
+  "name": "Uniswap-V3-Integration",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Sam-Devs/Uniswap-V3-Integration.git",
+  "author": "Sam Ayorinde <41350405+Sam-Devs@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@uniswap/v3-sdk": "^3.2.1",
+    "i": "^0.3.6"
+  }
+}
