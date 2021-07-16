@@ -1,11 +1,11 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
 const { Token } = require("@uniswap/sdk-core");
-const { Pool } = require("@uniswap/v3-sdk");
+const { Pool, TickList, TickListDataProvider, Tick } = require("@uniswap/v3-sdk");
 const IUniswapV3PoolABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json");
 
 
-const poolAddress = tokenAddresses.poolAddress;
+const poolAddress = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
 const maninnetProvider = process.env.MAINNET;
 const provider = new ethers.providers.JsonRpcProvider(maninnetProvider);
 
@@ -19,18 +19,38 @@ const tokenAddresses = {
 
 // create a Pool
 const main = async () => {
-    const token0 = new Token(1, tokenAddresses.token0, 6, "USDC", "USD Coin");
-    const token1 = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
-    const poolFee = poolContract.fee();
-    const slot0 = poolContract.slot0();
-    console.log(slot0);
-    // const pool = new Pool(
-    //     token0,
-    //     token1,
-    //     poolFee,
-    //     poolPrice,
-    //     poolLiquidity,
-    //     poolTick,
-    //     tickList
-    // )
+    try {
+        const token0 = new Token(1, tokenAddresses.token0, 6, "USDC", "USD Coin");
+        const token1 = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
+        const poolFee = await poolContract.fee();
+        const slot0 = await poolContract.slot0();
+        const poolLiquidity = await poolContract.liquidity();
+        const tickSpacing = await poolContract.tickSpacing();
+
+        const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
+
+        tickLowerIndex = nearestTick - (60 * 100);
+        tickUpperIndex = nearestTick + (60 * 100);
+
+        const tickLower = new Tick({
+            index: nearestTick,
+            liquidityGross:
+            liquidityNet:
+        })
+
+        const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
+        const pool = new Pool(
+            token0,
+            token1,
+            poolFee,
+            slot0[0],
+            poolLiquidity,
+            slot0[2],
+            tickList
+        )
+        
+    } catch (error) {
+        console.log(error);
+    }
 }
+main();
