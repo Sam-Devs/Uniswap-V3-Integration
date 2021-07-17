@@ -77,14 +77,15 @@ const main = async () => {
     const route = new Route([pool], tokenAddresses.token0, tokenAddresses.token1);
     console.log(`1 USDC can be swapped for ${route.midPrice.toSignificant(6)} WETH`);
     console.log(`1 WETH can be swapped for ${route.midPrice.invert.toSignificant(9)} USDC`);
-    const trade = await Trade.exactIn(route, amountIn);
-    const swapParams = {
-        path: Buffer.from([tokenAddresses.token0, tokenAddresses.token1]),
-        recipient: signer.address,
-        deadline: deadline,
-        amountIn: ethers.utils.parseUnits(amountIn.toExact(), 6),
-        amountOutMinimum: 
-    }
+    const trade = new Trade.exactIn(route, amountIn);
+    console.log(`The execution price of this trade is ${trade.executionPrice.toSignificant(6)} WETH for 1 USDC`);
+    // const swapParams = {
+    //     path: Buffer.from([tokenAddresses.token0, tokenAddresses.token1]),
+    //     recipient: signer.address,
+    //     deadline: deadline,
+    //     amountIn: ethers.utils.parseUnits(amountIn.toExact(), 6),
+    //     amountOutMinimum: 
+    // }
     const swapTransaction = router.exactInput(swapParams, {value: value, gasPrice: 20e9})
 }
 main();
