@@ -1,15 +1,22 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
-const { Token } = require("@uniswap/sdk-core");
-const { Pool, TickListDataProvider, Tick } = require("@uniswap/v3-sdk");
+const { Token, CurrencyAmount } = require("@uniswap/sdk-core");
+const { Pool, TickListDataProvider, Tick, Trade, Route } = require("@uniswap/v3-sdk");
 const IUniswapV3PoolABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json");
+const ISwapRouterABI = require("@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json");
 
+const signer = new ethers.Wallet.createRandom();
+const account = signer.connect(provider);
 
 const poolAddress = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
+const routerAddress = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 const maninnetProvider = process.env.MAINNET;
 const provider = new ethers.providers.JsonRpcProvider(maninnetProvider);
 
 const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI.abi , provider);
+const routerContract = new ethers.Contract(routerAddress, ISwapRouterABI.abi , provider);
+
+const router = routerContract.connect(account);
 
 const tokenAddresses = {
     token0: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -28,6 +35,7 @@ const main = async () => {
         const tickSpacing = await poolContract.tickSpacing();
 
         const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
+
         const tickLowerIndex = nearestTick - (60 * 100);
         const tickUpperIndex = nearestTick + (60 * 100);
 
@@ -35,18 +43,19 @@ const main = async () => {
         const tickUpperData = await poolContract.ticks(tickUpperIndex);
 
         const tickLower = new Tick({
-            index: tickLowerData,
+            index: tickLowerIndex,
             liquidityGross: tickLowerData.liquidityGross,
             liquidityNet: tickLowerData.liquidityNet
         })
+
         const tickUpper = new Tick({
-            index: tickUpperData,
+            index: tickUpperIndex,
             liquidityGross: tickUpperData.liquidityGross,
             liquidityNet: tickUpperData.liquidityNet
         })
-        const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
 
-        
+        const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
+        console.log(tickList)
         const pool = new Pool(
             token0,
             token1,
@@ -60,5 +69,22 @@ const main = async () => {
     } catch (error) {
         console.log(error);
     }
+
+    // Swap 
+    const deadline = Math.floor(Date.now() / 1000) + 60 + 20;
+    const amountIn = CurrencyAmount.fromRawAmount(tokenAddresses.token0, "5000000000");
+
+    const route = new Route([pool], tokenAddresses.token0, tokenAddresses.token1);
+    console.log(`1 USDC can be swapped for ${route.midPrice.toSignificant(6)} WETH`);
+    console.log(`1 WETH can be swapped for ${route.midPrice.invert.toSignificant(9)} USDC`);
+    const trade = await Trade.exactIn(route, amountIn);
+    const swapParams = {
+        path: Buffer.from([tokenAddresses.token0, tokenAddresses.token1]),
+        recipient: signer.address,
+        deadline: deadline,
+        amountIn: ethers.utils.parseUnits(amountIn.toExact(), 6),
+        amountOutMinimum: 
+    }
+    const swapTransaction = router.exactInput(swapParams, {value: value, gasPrice: 20e9})
 }
 main();
