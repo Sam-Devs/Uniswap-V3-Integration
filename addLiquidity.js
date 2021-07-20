@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
-const { Pool, TickListDataProvider, Tick, Trade, Route, priceToClosestTick } = require("@uniswap/v3-sdk");
+const { Pool, TickListDataProvider, Tick, Trade, Route, priceToClosestTick, Position } = require("@uniswap/v3-sdk");
 const INonfungiblePositionManager = require("@uniswap/v3-periphery/artifacts/contracts/interfaces/INonfungiblePositionManager.sol/INonfungiblePositionManager.json");
 const IUniswapV3PoolABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json");
 const { CurrencyAmount, Price } = require("@uniswap/sdk-core");
@@ -109,18 +109,32 @@ const pool = new Pool(
         const lowerTick = priceToClosestTick(new Price(token1, token0, lowerPrice.numerator, lowerPrice.denominator));
         const upperTick = priceToClosestTick(new Price(token1, token0, upperPrice.numerator, upperPrice.denominator));
 
+        const lowerTickSpacing = Math.floor(lowerTick / tickSpacing) * tickSpacing;
+        const upperTickSpacing = Math.floor(upperTick / tickSpacing) * tickSpacing;
+        console.log(`To provide liquidity for the 1500-3000 USDC/WETH, you need to create a position between ${lowerTickSpacing} and ${upperTickSpacing} tick`);
+
+        const position = new Position({
+            pool: pool,
+            liquidity: ethers.utils.parseEther("5.0"),
+            tickLower: lowerTickSpacing,
+            tickUpper: upperTickSpacing
+        })
+
+        const mintAmounts = position.mintAmounts;
+
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
         const mintParams = {
             token0: tokenAddresses.token0,
             token1: tokenAddresses.token1,
             fee: pool.fee,
-            tickLower:
-            tickUpper:
-            amount0Desired:
-            amount1Desired:
-            amount0Min:
-            amount1Min:
-            recipient:
-            deadline:
+            tickLower: lowerTickSpacing,
+            tickUpper: upperTickSpacing,
+            amount0Desired: mintAmounts.amount0.toString(),
+            amount1Desired: mintAmounts.amount1.toString(),
+            amount0Min: mintAmounts.amount0.toString(),
+            amount1Min: mintAmounts.amount1.toString(),
+            recipient: signer.address,
+            deadline: deadline
         }
     }
     main();
