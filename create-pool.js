@@ -42,13 +42,23 @@ const createPool = async() => {
 
     // Get nearest Tick
     const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
+    const tickLowerIndex = nearestTick - (60 * 100);
+    const tickUpperIndex = nearestTick + (60 * 100);
+
+    const tickLowerData = await poolContract.ticks(tickLowerIndex);
+    const tickUpperData = await poolContract.ticks(tickUpperIndex);
 
     // Tick Object
-    const tickLower = new Tick(
-        index:
-        liquidityGross:
-        liquidityNet
-    )
+    const tickLower = new Tick({
+        index: tickLowerIndex,
+        liquidityGross: tickLowerData.liquidity,
+        liquidityNet: tickLowerData.liquidityNet
+    })
+    const tickUpper = new Tick({
+        index: tickUpperIndex,
+        liquidityGross: tickUpperData.liquidity,
+        liquidityNet: tickUpperData.liquidityNet
+    })
 
     // Tick List
     const tickList = await TickListDataProvider([tickLower, tickUpper], tickSpacing);
