@@ -13,6 +13,15 @@ const poolContract = new ethers.Contract(poolAddress, IUniswapV3Pool.abi, provid
 
 // create a pool
 const createPool = async() => {
-    
+    // Pool Instance
+    const pool = new Pool(
+        tokenA:
+        tokenB:
+        poolFee:
+        poolPrice:
+        poolLiquidity:
+        poolTick:
+        tickList:
+    )
 }
 createPool();
