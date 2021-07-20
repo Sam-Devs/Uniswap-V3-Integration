@@ -1,8 +1,9 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
-const { Pool, TickListDataProvider, Tick, Trade, Route } = require("@uniswap/v3-sdk");
+const { Pool, TickListDataProvider, Tick, Trade, Route, priceToClosestTick } = require("@uniswap/v3-sdk");
 const INonfungiblePositionManager = require("@uniswap/v3-periphery/artifacts/contracts/interfaces/INonfungiblePositionManager.sol/INonfungiblePositionManager.json");
 const IUniswapV3PoolABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json");
+const { CurrencyAmount, Price } = require("@uniswap/sdk-core");
 
 // Provider
 const maninnetProvider = process.env.MAINNET;
@@ -12,13 +13,21 @@ const provider = new ethers.providers.JsonRpcProvider(maninnetProvider);
 const signer = new ethers.Wallet.createRandom();
 const account = signer.connect(provider);
 
+
 //  pool contract address
 const poolAddress = "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8";
+const positionManagerAddress = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
 
 // Pool Contract
 const poolContract = new ethers.Contract(
   poolAddress,
-  IUniswapV3Pool.abi,
+  IUniswapV3PoolABI.abi,
+  provider
+);
+// Pool Contract
+const poolContract = new ethers.Contract(
+  positionManagerAddress,
+  INonfungiblePositionManager.abi,
   provider
 );
 
@@ -88,17 +97,22 @@ const pool = new Pool(
   slot0[1],
   tickList
 );
-console.log(pool);
 
     const mintTransaction = await positionManager.mint(
         mintParams,
         {value: value, gasPrice: 20e9}
         )
 
+        const lowerPrice = CurrencyAmount.fromRawAmount(tokenAddresses.token0, "1500000000");
+        const upperPrice = CurrencyAmount.fromRawAmount(tokenAddresses.token0, "3000000000");
+
+        const lowerTick = priceToClosestTick(new Price(token1, token0, lowerPrice.numerator, lowerPrice.denominator));
+        const upperTick = priceToClosestTick(new Price(token1, token0, upperPrice.numerator, upperPrice.denominator));
+
         const mintParams = {
             token0: tokenAddresses.token0,
             token1: tokenAddresses.token1,
-            fee:
+            fee: pool.fee,
             tickLower:
             tickUpper:
             amount0Desired:
