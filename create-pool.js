@@ -20,8 +20,8 @@ const tokenAddresses = {
 
 // create a pool
 const createPool = async() => {
-
-    // Token Addresses
+    try {
+        // Token Addresses
     const tokenA = new Token(1, tokenAddresses.token0, 6, "USDC", "USD Coin");
     const tokenB = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
 
@@ -74,5 +74,8 @@ const createPool = async() => {
         tickList,
     )
     console.log(pool);
+    } catch (error) {
+        console.log(error);
+    }
 }
 createPool();
