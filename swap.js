@@ -41,8 +41,10 @@ const swap = async () => {
       tokenAddresses.token0,
       tokenAddresses.token1
     );
-    const trade = await Trade.exactIn(route, amountIn);
-    console.log(trade);
+    console.log(`1 USDC can be swapped for ${route.midPrice.toSignificant(6)} WETH`);
+    console.log(`1 WETH can be swapped for ${route.midPrice.invert().toSignificant(6)} USDC`);
+    const trade = new Trade.exactIn(route, amountIn);
+    console.log(`The execution price of this trade is ${trade.executionPrice.toSignificant(6)} WETH for 1 USDC`);
     // Amount Out Minimum
     // const amountOutMinimum
     // const swapParams = {
