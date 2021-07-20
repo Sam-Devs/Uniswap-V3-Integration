@@ -65,13 +65,14 @@ const createPool = async() => {
 
     // Pool Instance
     const pool = new Pool(
-        tokenA:
-        tokenB:
-        poolFee:
-        slot0[0]:
-        poolLiquidity:
-        slot0[1]:
-        tickList:
+        tokenA,
+        tokenB,
+        poolFee,
+        slot0[0],
+        poolLiquidity,
+        slot0[1],
+        tickList,
     )
+    console.log(pool);
 }
 createPool();
