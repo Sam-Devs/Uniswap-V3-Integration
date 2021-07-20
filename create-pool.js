@@ -20,10 +20,9 @@ const tokenAddresses = {
 
 // create a pool
 const createPool = async() => {
-    try {
-        // Token Addresses
+    // Token Address Instance
     const tokenA = new Token(1, tokenAddresses.token0, 6, "USDC", "USD Coin");
-    const tokenB = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
+    const tokenA = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
 
     // Pool Fee
     const poolFee = await poolContract.fee();
@@ -32,48 +31,43 @@ const createPool = async() => {
     const slot0 = await poolContract.slot0();
 
     // Pool Liquidity
-    const poolLiquidity = await poolContract.liquidity();
+    const liquidity = await poolContract.liquidity();
 
-    // Pool Tick
-    // const poolTick = await poolContract.slot0();
-
-    // Tick Spacing
+    // Tick SPacing
     const tickSpacing = await poolContract.tickSpacing();
 
-    // Get nearest Tick
-    const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
-    const tickLowerIndex = nearestTick - (60 * 100);
-    const tickUpperIndex = nearestTick + (60 * 100);
+    const nearestIndex = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
+
+    const tickLowerIndex = nearestIndex - (60 * 100);
+    const tickUpperIndex = nearestIndex + (60 * 100);
 
     const tickLowerData = await poolContract.ticks(tickLowerIndex);
     const tickUpperData = await poolContract.ticks(tickUpperIndex);
 
-    // Tick Object
+    // Tick
     const tickLower = new Tick({
         index: tickLowerIndex,
-        liquidityGross: tickLowerData.liquidity,
+        liquidityGross: tickLowerData.liquidityGross,
         liquidityNet: tickLowerData.liquidityNet
     })
     const tickUpper = new Tick({
         index: tickUpperIndex,
-        liquidityGross: tickUpperData.liquidity,
+        liquidityGross: tickUpperData.liquidityGross,
         liquidityNet: tickUpperData.liquidityNet
     })
 
     // Tick List
-    const tickList = await TickListDataProvider([tickLower, tickUpper], tickSpacing);
-
-    // Pool Instance
-    const pool = new Pool(
-        tokenA,
-        tokenB,
-        poolFee,
-        slot0[0],
-        poolLiquidity,
-        slot0[1],
-        tickList,
-    )
-    console.log(pool);
+    const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
+    try {
+        const pool = new Pool(
+            tokenA,
+            tokenB,
+            poolFee,
+            slot0[0],
+            liquidity,
+            slot0[1],
+            tickList,
+        )
     } catch (error) {
         console.log(error);
     }
