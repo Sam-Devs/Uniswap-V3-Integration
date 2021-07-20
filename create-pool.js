@@ -36,7 +36,23 @@ const createPool = async() => {
 
     // Pool Tick
     // const poolTick = await poolContract.slot0();
-    
+
+    // Tick Spacing
+    const tickSpacing = await poolContract.tickSpacing();
+
+    // Get nearest Tick
+    const nearestTick = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
+
+    // Tick Object
+    const tickLower = new Tick(
+        index:
+        liquidityGross:
+        liquidityNet
+    )
+
+    // Tick List
+    const tickList = await TickListDataProvider([tickLower, tickUpper], tickSpacing);
+
     // Pool Instance
     const pool = new Pool(
         tokenA:
