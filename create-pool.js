@@ -27,63 +27,56 @@ const createPool = async () => {
   try {
     // Token Address Instance
     const tokenA = new Token(1, tokenAddresses.token0, 6, "USDC", "USD Coin");
-    const tokenB = new Token(
-      1,
-      tokenAddresses.token1,
-      18,
-      "WETH",
-      "Wrapped Ether"
-    );
+    const tokenB = new Token(1, tokenAddresses.token1, 18, "WETH", "Wrapped Ether");
 
-    // Pool Fee
+    // Fee Method from the pool contract
     const poolFee = await poolContract.fee();
 
-    // Pool Price
+    // Price Method from the pool contract
     const slot0 = await poolContract.slot0();
+    // console.log(slot0);
 
-    // Pool Liquidity
-    const liquidity = await poolContract.liquidity();
+    // Liquidity Method from the pool contract
+    const poolLiquidity = await poolContract.liquidity(); 
 
-    // Tick Spacing
+    // Spacing Method from the pool contract
     const tickSpacing = await poolContract.tickSpacing();
-
-    // Get the nearest index
+    
+    // Getting the nearest index of the tick
     const nearestIndex = Math.floor(slot0[1] / tickSpacing) * tickSpacing;
 
-    // Create a tick index
-    const tickLowerIndex = nearestIndex - 60 * 100;
-    const tickUpperIndex = nearestIndex + 60 * 100;
+    // Calculating the nearest index range of the tick
+    const tickLowerIndex = nearestIndex - (60 * 100);
+    const tickUpperIndex = nearestIndex + (60 * 100);
 
-    // Tick Data
+    // Ticks Method from the pool contract
     const tickLowerData = await poolContract.ticks(tickLowerIndex);
     const tickUpperData = await poolContract.ticks(tickUpperIndex);
 
-    // Tick Instance
+    // Creating the Tick instance
     const tickLower = new Tick({
       index: tickLowerIndex,
       liquidityGross: tickLowerData.liquidityGross,
-      liquidityNet: tickLowerData.liquidityNet,
-    });
+      liquidityNet: tickLowerData.liquidityNet
+    })
+
     const tickUpper = new Tick({
       index: tickUpperIndex,
       liquidityGross: tickUpperData.liquidityGross,
-      liquidityNet: tickUpperData.liquidityNet,
-    });
+      liquidityNet: tickUpperData.liquidityNet
+    })
 
-    // Tick List
-    const tickList = new TickListDataProvider(
-      [tickLower, tickUpper],
-      tickSpacing
-    );
+    const tickList = new TickListDataProvider([tickLower, tickUpper], tickSpacing);
+
     const pool = new Pool(
       tokenA,
       tokenB,
       poolFee,
       slot0[0],
-      liquidity,
+      poolLiquidity,
       slot0[1],
-      tickList
-    );
+      tickList,
+    )
     console.log(pool);
   } catch (error) {
     console.log(error);
