@@ -27,44 +27,30 @@ const tokenAddresses = {
 
 const swap = async () => {
   try {
+
     // Deadline
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
     // Amount In
-    const amountIn = CurrencyAmount.fromRawAmount(
-      tokenAddresses.token0,
-      "5000000000"
-    );
+    const amountIn = CurrencyAmount.fromRawAmount(tokenAddresses.token0, "5000000000");
 
-    const route = new Route(
-      [pool],
-      tokenAddresses.token0,
-      tokenAddresses.token1
-    );
-    console.log(`1 USDC can be swapped for ${route.midPrice.toSignificant(6)} WETH`);
-    console.log(`1 WETH can be swapped for ${route.midPrice.invert().toSignificant(6)} USDC`);
-    const trade = new Trade.exactIn(route, amountIn);
-    console.log(`The execution price of this trade is ${trade.executionPrice.toSignificant(6)} WETH for 1 USDC`);
-    
-    const slippageTolerance = new Percent("50", "10000");
-    
-    // Amount Out Minimum
-    const amountOutMinimum = trade.mininumAmountOut(slippageTolerance);
-    console.log(`For 5000 USDC you can get a minimum of ${amountOutMinimum.toSignificant(6)} WETH`);
-    const swapParams = {
-      path: Buffer.from([tokenAddresses.token0, tokenAddresses.token1]),
-      recipient: signer.address,
-      deadline: deadline,
-      amountIn: ethers.utils.parseUnits(amountIn.toExact(), 6),
-      amountOutMinimum: ethers.utils.parseUnits(amountOutMinimum.toExact(), 18)
-    }
-    const swapTransaction = router.exactInput(
-      swapParams,
-      {value: value, gasPrice: 20e9}
-    );
-    console.log(`Swap Transaction Hash: ${swapTransaction.hash}`);
-    const swapReceipt = await swapTransaction.wait()
-    console.log(`Swap Transaction Receipt: ${swapReceipt}`);
+    const route = new Route([pool], token0, token1);
+    console.log(`1 USDC can be swapped for ${route.midPrice.toSignificant(6)} WETH `);
+    console.log(`1 WETH can be swapped for ${route.midPrice.invert().toSignificant(6)} USDC `);
+    const trade =  new Trade(route, amountIn);
+    console.log(`The execution of the trade is ${trade.executionPrice.toSignificant(6)} WETH for 1 USDC`);
+
+  //   const swapParam = {
+  //     path: Buffer.from([tokenAddresses.token0, tokenAddresses.token1]),
+  //     recipient: signer.address,
+  //     deadline: deadline,
+  //     amountIn: ethers.utils.parseUnits(amountIn.toExact(), 6),
+  //     amountOutMinimum: 
+  // }
+  //   const swapTransaction = await router.exactInput(
+  //     swapParam,
+  //     {value: value, gasPrice: 20e9}
+  //   )
   } catch (error) {
     console.log(error);
   }
